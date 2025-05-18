@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+
+# If bun.lockb is staged, regenerate package-lock.json
+if git diff --cached --name-only | grep -q "bun.lockb"; then
+  echo "bun.lockb changed, regenerating package-lock.json..."
+  npm install
+  git add package-lock.json
+fi

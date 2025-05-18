@@ -11,7 +11,10 @@ import {
 } from "@modelcontextprotocol/sdk/types.js";
 import { zodToJsonSchema } from 'zod-to-json-schema';
 import { z } from 'zod';
-import pkg from '../package.json' with { type: 'json' };
+
+export const SERVICE_NAME = 'calfire-gis-mcp-server';
+export const SERVICE_VERSION = '0.1.0';
+export const SERVICE_DESCRIPTION = 'MCP Server for CAL FIRE DINS fire damage assessment data';
 
 // Create server and transport
 export const app = new Hono();
@@ -20,9 +23,9 @@ const transport = new StreamableHTTPServerTransport({
 });
 
 const server = new Server({
-  name: pkg.name,
-  version: pkg.version,
-  description: 'MCP Server for CAL FIRE DINS fire damage assessment data',
+  name: SERVICE_NAME,
+  version: SERVICE_VERSION,
+  description: SERVICE_DESCRIPTION,
 }, {
   capabilities: {
     tools: {},
@@ -127,11 +130,11 @@ app.delete('/mcp', async (c) => {
 
 // Health check endpoint
 app.get('/health', async (c) => {
-  logger.debug("Received health check request");
+  logger.debug(`Received health check request name=${SERVICE_NAME} version=${SERVICE_VERSION}!`);
   return c.json({
     status: "ok",
-    service: pkg.name,
-    version: pkg.version,
+    service: SERVICE_NAME,
+    version: SERVICE_VERSION,
     timestamp: new Date().toISOString(),
     uptime: Math.floor(process.uptime())
   }, { status: 200 });

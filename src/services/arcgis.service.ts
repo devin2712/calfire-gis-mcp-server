@@ -52,11 +52,11 @@ export class ArcGISService {
    * @param address - The address to geocode. Can be a string or an object with street, city, state, and zip properties.
    * @returns The coordinates and normalized address of the geocoded address.
    */
-  async geocodeAddress(address: string | { street: string; city: string; state: string; zip: string }): Promise<{ coordinates: Coordinates; address: string }> {
+  async geocodeAddress(address: string | { street?: string; city?: string; state?: string; zip?: string }): Promise<{ coordinates: Coordinates; address: string }> {
     try {
       const addressString = typeof address === 'string' 
         ? address 
-        : `${address.street}, ${address.city}, ${address.state} ${address.zip}`;
+        : `${address.street || ''}, ${address.city || ''}, ${address.state || ''} ${address.zip || ''}`.trim();
 
       const params = new URLSearchParams({
         SingleLine: addressString,

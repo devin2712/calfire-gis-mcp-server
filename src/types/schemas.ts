@@ -3,10 +3,10 @@ import { Polygon } from 'geojson';
 
 export const AddressSchema = z.union([
   z.object({
-    street: z.string().describe('Street address of the property location'),
-    city: z.string().describe('City name of where the property is located'),
-    state: z.string().describe('State or province where the property is located'),
-    zip: z.string().describe('Postal/ZIP code of the property'),
+    street: z.string().optional().describe('Street address of the property location'),
+    city: z.string().optional().describe('City name of where the property is located'),
+    state: z.string().optional().describe('State or province where the property is located'),
+    zip: z.string().optional().describe('Postal/ZIP code of the property'),
   }),
   z.string().describe('Full address as a single string')
 ]).describe('Represents a physical address either as a structured object or a single string');

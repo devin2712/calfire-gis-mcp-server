@@ -1,0 +1,102 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Description: CAL FIRE GIS MCP Server
+
+Parameters:
+  BudgetEmail:
+    Type: String
+    Description: Email address to receive budget alerts
+
+Globals:
+  Function:
+    Timeout: 30
+    MemorySize: 256
+    Runtime: nodejs20.x
+    Environment:
+      Variables:
+        NODE_ENV: production
+        NODE_OPTIONS: "--enable-source-maps"
+
+Resources:
+  # Budget Configuration
+  MonthlyBudget:
+    Type: AWS::Budgets::Budget
+    Properties:
+      Budget:
+        BudgetType: COST
+        TimeUnit: MONTHLY
+        BudgetLimit:
+          Amount: 100
+          Unit: USD
+      NotificationsWithSubscribers:
+        - Notification:
+            NotificationType: ACTUAL
+            ComparisonOperator: GREATER_THAN
+            Threshold: 80
+            ThresholdType: PERCENTAGE
+          Subscribers:
+            - SubscriptionType: EMAIL
+              Address: !Ref BudgetEmail
+
+  # API Gateway
+  McpApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: prod
+      Cors:
+        AllowMethods: "'POST,GET,OPTIONS'"
+        AllowHeaders: "'Content-Type,X-Amz-Date,Authorization'"
+        AllowOrigin: "'*'"
+      Auth:
+        DefaultAuthorizer: NONE
+        AddDefaultAuthorizerToCorsPreflight: false
+
+  # Lambda Function
+  McpFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./dist
+      Handler: lambda.handler
+      Runtime: nodejs20.x
+      Architectures:
+        - x86_64
+      Environment:
+        Variables:
+          NODE_ENV: production
+          NODE_OPTIONS: "--enable-source-maps"
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref McpApi
+            Path: /mcp
+            Method: POST
+            Auth:
+              Authorizer: NONE
+        HealthEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref McpApi
+            Path: /health
+            Method: GET
+            Auth:
+              Authorizer: NONE
+      Policies:
+        - AWSLambdaBasicExecutionRole
+      PackageType: Zip
+
+  # Log Group
+  McpLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${McpFunction}
+      RetentionInDays: 7
+
+Outputs:
+  ApiEndpoint:
+    Description: API Gateway endpoint URL
+    Value: !Sub "https://${McpApi}.execute-api.${AWS::Region}.amazonaws.com/prod"
+  FunctionName:
+    Description: Lambda function name
+    Value: !Ref McpFunction

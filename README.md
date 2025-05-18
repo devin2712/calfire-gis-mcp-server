@@ -213,55 +213,36 @@ src/
 
 ### AWS Lambda Deployment
 
-The server can be deployed to AWS Lambda using the provided deployment script:
+The application is deployed as a serverless application using AWS SAM with the following key components:
 
-1. **Build and Deploy**
-   ```bash
-   # Deploy directly to AWS Lambda
-   bun run deploy
-   ```
+- **Lambda Function**: Node.js 20.x runtime with 256MB memory
+- **API Gateway**: Two endpoints (`/mcp` POST, `/health` GET)
+- **Deployment Pipeline**: GitHub Actions workflow that:
+  - Runs tests and type checks
+  - Builds the application
+  - Deploys to AWS using SAM CLI
 
-   This script will:
-   - Build the project
-   - Create a deployment package
-   - Install production dependencies
-   - Create a ZIP file
-   - Update the Lambda function code
+The deployment is automated through GitHub Actions, triggered on pushes to `main` and pull requests.
 
-2. **Lambda Configuration**
-   The function is configured with:
-   - Runtime: Node.js 20.x
-   - Function name: `calfire-gis-mcp-server`
-   - Environment variables:
-     - `NODE_ENV`: production
-     - `VERSION`: Current package version
+You can test with the deployed MCP server: 
+```bash
+curl https://eg9m4imp6d.execute-api.us-east-2.amazonaws.com/prod/health
+```
 
-3. **API Gateway**
-   - The Lambda function should be configured with an API Gateway trigger
-   - Use HTTP API (v2) for better performance
-   - Configure the following routes:
-     - POST /mcp
-     - DELETE /mcp
-
-4. **Monitoring**
-   - CloudWatch Logs are automatically enabled
-   - Set up CloudWatch Alarms for:
-     - Error rates
-     - Duration
-     - Throttles
-
-5. **Version Management**
-   The project includes scripts for semantic versioning:
-   ```bash
-   # Increment patch version (0.0.x)
-   bun run version:patch
-
-   # Increment minor version (0.x.0)
-   bun run version:minor
-
-   # Increment major version (x.0.0)
-   bun run version:major
-   ```
+You can also point Claude Desktop to the production endpoint with (`~/Library/Application Support/Claude/claude_desktop_config.json`):
+```json
+{
+    "mcpServers": {
+        "calfire-gis-mcp-server": {
+            "command": "npx",
+            "args": [
+                "mcp-remote",
+                "https://eg9m4imp6d.execute-api.us-east-2.amazonaws.com/prod/mcp"
+            ]
+        }
+    }
+}
+```
 
 ## Testing
 
