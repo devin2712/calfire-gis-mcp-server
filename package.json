@@ -1,0 +1,39 @@
+{
+  "name": "calfire-gis-mcp-server",
+  "version": "0.1.0",
+  "type": "module",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "dev": "bun --hot src/index.ts",
+    "start": "bun run src/index.ts",
+    "build": "bun run clean && tsc",
+    "test": "bun test tests/*.test.ts",
+    "clean": "rm -rf dist",
+    "prod": "NODE_ENV=production bun run src/index.ts",
+    "lint": "tsc --noEmit",
+    "deploy": "bun run build && mkdir -p deploy && cp -r dist/* deploy/ && cp package.json deploy/ && cd deploy && npm install --production && zip -r ../function.zip . && cd .. && rm -rf deploy && aws lambda update-function-code --function-name calfire-gis-mcp-server --zip-file fileb://function.zip",
+    "version:patch": "bun run build && git add dist && git commit -m 'build: update dist' && npm version patch",
+    "version:minor": "bun run build && git add dist && git commit -m 'build: update dist' && npm version minor",
+    "version:major": "bun run build && git add dist && git commit -m 'build: update dist' && npm version major"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.11.3",
+    "@turf/turf": "^7.2.0",
+    "fetch-to-node": "^2.1.0",
+    "hono": "^4.7.9",
+    "pino": "^9.6.0",
+    "zod": "^3.24.4"
+  },
+  "devDependencies": {
+    "@types/geojson": "^7946.0.16",
+    "@types/node": "^20.11.0",
+    "pino-pretty": "^13.0.0",
+    "typescript": "^5.8.3",
+    "zod-to-json-schema": "^3.24.5"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
