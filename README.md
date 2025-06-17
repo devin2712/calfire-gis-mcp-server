@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/devin2712-calfire-gis-mcp-server-badge.png)](https://mseep.ai/app/devin2712-calfire-gis-mcp-server)
+
 # CAL FIRE DINS ArcGIS MCP Server 
 
 A Model Context Protocol (MCP) server that provides fire damage assessment context to AI models for property addresses in the Los Angeles region that were affected by the Eaton and Palisades fires in January 2025. Learn more about MCP in [Model Context Protocol Introduction](https://modelcontextprotocol.io/introduction).
